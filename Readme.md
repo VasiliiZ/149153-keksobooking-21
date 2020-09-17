@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Vasily Zinchenko](https://up.htmlacademy.ru/javascript/21/user/149153).
-* Наставник: `Неизвестно`.
+* Наставник: `Захар Овчаров`.
 
 ---
 
