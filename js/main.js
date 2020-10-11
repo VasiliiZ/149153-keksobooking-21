@@ -14,12 +14,25 @@ const FEATURES_TYPE = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `c
 const PHOTO_LINKS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 
 const MAP = document.querySelector(`.map`);
-MAP.classList.remove(`map--faded`);
-
 const MAP_PINS = MAP.querySelector(`.map__pins`);
 const PIN_TEMPLATE = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const CARD_TEMPLATE = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const MAP_FILTER_CONTAINER = MAP.querySelector(`.map__filters-container`);
+const MAP_FILTERS = MAP_FILTER_CONTAINER.querySelector(`.map__filters`);
+const AD_FORM = document.querySelector(`.ad-form`);
+const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
+const FORM_ADDRESS = AD_FORM.querySelector(`#address`);
+const FORM_CAPACITY_OPTIONS = AD_FORM.querySelectorAll(`#capacity option`);
+const FORM_CAPACITY = AD_FORM.querySelector(`#capacity`);
+const FORM_APARTMENT_TYPE = AD_FORM.querySelector(`#type`);
+const FORM_APARTMENT_PRICE = AD_FORM.querySelector(`#price`);
+const FORM_ROOM_NUMBERS = AD_FORM.querySelector(`#room_number`);
+const FORM_APARTMENT_ADDRESS = AD_FORM.querySelector(`#address`);
+const FORM_APARTMENT_TIMEIN = AD_FORM.querySelector(`#timein`);
+const FORM_APARTMENT_TIMEOUT = AD_FORM.querySelector(`#timeout`);
+
+
+FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
 
 const getRandomFromRange = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -55,7 +68,7 @@ for (let i = 0; i < 8; i++) {
       "address": `${xLocation},${yLocation}`,
       "price": Math.floor(Math.random() * 10000),
       "type": getRandomIndex(APARTMENT_TYPE),
-      "rooms": Math.floor(Math.random() * MAX_ROOM), /** Обработку на 0 надо? */
+      "rooms": getRandomFromRange(1, MAX_ROOM),
       "guests": Math.floor(Math.random() * 10),
       "checkin": getRandomIndex(CHECK_TIME),
       "checkout": getRandomIndex(CHECK_TIME),
@@ -71,6 +84,101 @@ for (let i = 0; i < 8; i++) {
   adverts.push(advertTemplate);
 }
 
+const setDisabled = function (element) {
+  for (let el of element) {
+    el.setAttribute(`disabled`, `disabled`);
+  }
+};
+
+const removeDisabled = function (element) {
+  for (let el of element) {
+    el.removeAttribute(`disabled`);
+  }
+};
+
+setDisabled(AD_FORM.children);
+setDisabled(MAP_FILTERS.children);
+
+const mapPinActive = function () {
+  MAP.classList.remove(`map--faded`);
+  AD_FORM.classList.remove(`ad-form--disabled`);
+  FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight - 156)}`;
+  onCapacityChange(FORM_ROOM_NUMBERS.value);
+  onApartmentChange(FORM_APARTMENT_TYPE.value);
+  removeDisabled(AD_FORM.children);
+  removeDisabled(MAP_FILTERS.children);
+  FORM_APARTMENT_ADDRESS.setAttribute(`disabled`, `disabled`);
+};
+
+MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
+  if (evt.button === 0) {
+    mapPinActive();
+  }
+});
+
+MAIN_MAP_PIN.addEventListener(`keydown`, function (evt) {
+  if (evt.key === `Enter`) {
+    mapPinActive();
+  }
+});
+
+
+const onCapacityChange = function (value) {
+  for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
+    FORM_CAPACITY.removeChild(FORM_CAPACITY[i]);
+  }
+  if (value === `1`) {
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+  } else if (value === `2`) {
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+  } else if (value === `3`) {
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[0]);
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+  } else {
+    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[3]);
+  }
+};
+
+FORM_ROOM_NUMBERS.addEventListener(`change`, function (evt) {
+  onCapacityChange(evt.target.value);
+});
+
+const onApartmentChange = function (value) {
+  if (value === `bungalow`) {
+    FORM_APARTMENT_PRICE.setAttribute(`min`, `0`);
+    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `0`);
+  } else if (value === `flat`) {
+    FORM_APARTMENT_PRICE.setAttribute(`min`, `1000`);
+    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `1000`);
+  } else if (value === `house`) {
+    FORM_APARTMENT_PRICE.setAttribute(`min`, `5000`);
+    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `5000`);
+  } else if (value === `palace`) {
+    FORM_APARTMENT_PRICE.setAttribute(`min`, `10000`);
+    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `10000`);
+  }
+};
+
+FORM_APARTMENT_TYPE.addEventListener(`change`, function (evt) {
+  onApartmentChange(evt.target.value);
+});
+
+FORM_APARTMENT_TIMEIN.addEventListener(`change`, function (evt) {
+  for (let element of FORM_APARTMENT_TIMEOUT.children) {
+    if (evt.target.value === element.value) {
+      FORM_APARTMENT_TIMEOUT.value = element.value;
+    }
+  }
+});
+FORM_APARTMENT_TIMEOUT.addEventListener(`change`, function (evt) {
+  for (let element of FORM_APARTMENT_TIMEIN.children) {
+    if (evt.target.value === element.value) {
+      FORM_APARTMENT_TIMEIN.value = element.value;
+    }
+  }
+});
 const renderPin = function (advert) {
   const PIN = PIN_TEMPLATE.cloneNode(true);
   const PIN_IMAGE = PIN.querySelector(`img`);
@@ -104,9 +212,9 @@ const renderCard = function (card) {
   DESCRIPTION.textContent = card.offer.description;
   AVATAR.src = card.author.avatar;
 
-  for (let i = 0; i < FEATURE.length; i++) {
-    FEATURES.removeChild(FEATURE[i]);
-  }
+  FEATURE.forEach((element) => {
+    FEATURES.removeChild(element);
+  });
 
   card.offer.features.forEach((element) => {
     let feature = document.createElement(`li`);
@@ -137,5 +245,5 @@ const generateCardTemplate = function () {
   MAP_FILTER_CONTAINER.before(FRAGMENT);
 };
 
-generatePinTemplate();
-generateCardTemplate();
+// generatePinTemplate();
+// generateCardTemplate();
