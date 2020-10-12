@@ -1,12 +1,18 @@
 'use strict';
 
 const adverts = [];
-const APARTMENT_TYPE = [`palace`, `flat`, `house`, `bungalow`];
+const APARTMENT_TYPE = [`Palace`, `Flat`, `House`, `Bungalow`];
+const APARTMENT_PRICE = [`0`, `1000`, `5000`, `10000`];
 const APARTMENT_TYPE_MAP = {
-  palace: `Дворец`,
-  flat: `Квартира`,
-  house: `Дом`,
-  bungalow: `Бунгало `
+  Palace: `Дворец`,
+  Flat: `Квартира`,
+  House: `Дом`,
+  Bungalow: `Бунгало `
+};
+const ROOM_SIZE_MAP = {
+  OneBedroom: `1`,
+  TwoBedroom: `2`,
+  ThreeBedroom: `3`
 };
 const MAX_ROOM = 4;
 const CHECK_TIME = [`12:00`, `13:00`, `14:00`];
@@ -30,7 +36,7 @@ const FORM_ROOM_NUMBERS = AD_FORM.querySelector(`#room_number`);
 const FORM_APARTMENT_ADDRESS = AD_FORM.querySelector(`#address`);
 const FORM_APARTMENT_TIMEIN = AD_FORM.querySelector(`#timein`);
 const FORM_APARTMENT_TIMEOUT = AD_FORM.querySelector(`#timeout`);
-
+const BUTTON_ENTER = `Enter`;
 
 FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
 
@@ -117,7 +123,7 @@ MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
 });
 
 MAIN_MAP_PIN.addEventListener(`keydown`, function (evt) {
-  if (evt.key === `Enter`) {
+  if (evt.key === BUTTON_ENTER) {
     mapPinActive();
   }
 });
@@ -127,17 +133,21 @@ const onCapacityChange = function (value) {
   for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
     FORM_CAPACITY.removeChild(FORM_CAPACITY[i]);
   }
-  if (value === `1`) {
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
-  } else if (value === `2`) {
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
-  } else if (value === `3`) {
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[0]);
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
-  } else {
-    FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[3]);
+  switch (value) {
+    case ROOM_SIZE_MAP.OneBedroom:
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      break;
+    case ROOM_SIZE_MAP.TwoBedroom:
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      break;
+    case ROOM_SIZE_MAP.ThreeBedroom:
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[0]);
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      break;
+    default:
+      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[3]);
   }
 };
 
@@ -146,18 +156,22 @@ FORM_ROOM_NUMBERS.addEventListener(`change`, function (evt) {
 });
 
 const onApartmentChange = function (value) {
-  if (value === `bungalow`) {
-    FORM_APARTMENT_PRICE.setAttribute(`min`, `0`);
-    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `0`);
-  } else if (value === `flat`) {
-    FORM_APARTMENT_PRICE.setAttribute(`min`, `1000`);
-    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `1000`);
-  } else if (value === `house`) {
-    FORM_APARTMENT_PRICE.setAttribute(`min`, `5000`);
-    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `5000`);
-  } else if (value === `palace`) {
-    FORM_APARTMENT_PRICE.setAttribute(`min`, `10000`);
-    FORM_APARTMENT_PRICE.setAttribute(`placeholder`, `10000`);
+  switch (value) {
+    case APARTMENT_TYPE[0].toLowerCase():
+      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[3]);
+      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[3]);
+      break;
+    case APARTMENT_TYPE[1].toLowerCase():
+      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[1]);
+      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[1]);
+      break;
+    case APARTMENT_TYPE[2].toLowerCase():
+      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[2]);
+      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[2]);
+      break;
+    default:
+      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[0]);
+      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[0]);
   }
 };
 
