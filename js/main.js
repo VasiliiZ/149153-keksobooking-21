@@ -37,8 +37,34 @@ const FORM_APARTMENT_ADDRESS = AD_FORM.querySelector(`#address`);
 const FORM_APARTMENT_TIMEIN = AD_FORM.querySelector(`#timein`);
 const FORM_APARTMENT_TIMEOUT = AD_FORM.querySelector(`#timeout`);
 const BUTTON_ENTER = `Enter`;
+const BUTTON_ESC = `Escape`;
 
 FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
+
+const closePopup = function () {
+  const popup = MAP.querySelector(`.popup`);
+  MAP.removeChild(popup);
+  document.removeEventListener(`keydown`, onPopupEscPress);
+};
+
+const openPopup = function (advert) {
+  const popup = MAP.querySelector(`.popup`);
+  if (popup) {
+    MAP.removeChild(popup);
+  }
+  generateCardTemplate(advert);
+  document.addEventListener(`keydown`, onPopupEscPress);
+  const closeBtn = MAP.querySelector(`.popup__close`);
+  closeBtn.addEventListener(`click`, closePopup);
+
+};
+
+const onPopupEscPress = function (evt) {
+  if (evt.key === BUTTON_ESC) {
+    evt.preventDefault();
+    closePopup();
+  }
+};
 
 const getRandomFromRange = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -119,12 +145,14 @@ const mapPinActive = function () {
 MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
   if (evt.button === 0) {
     mapPinActive();
+    generatePinTemplate();
   }
 });
 
 MAIN_MAP_PIN.addEventListener(`keydown`, function (evt) {
   if (evt.key === BUTTON_ENTER) {
     mapPinActive();
+    generatePinTemplate();
   }
 });
 
@@ -200,6 +228,15 @@ const renderPin = function (advert) {
   PIN_IMAGE.alt = advert.offer.description;
   PIN.style.left = `${advert.location.x + PIN_IMAGE.width / 2}px`;
   PIN.style.top = `${advert.location.y + PIN_IMAGE.height}px`;
+  PIN.addEventListener(`click`, function () {
+    openPopup(advert);
+  });
+  PIN.addEventListener(`keydown`, function (evt) {
+    if (evt.key === BUTTON_ENTER) {
+      evt.preventDefault();
+      openPopup(advert);
+    }
+  });
   return PIN;
 };
 
@@ -253,11 +290,9 @@ const generatePinTemplate = function () {
   MAP_PINS.appendChild(FRAGMENT);
 };
 
-const generateCardTemplate = function () {
+const generateCardTemplate = function (advert) {
   const FRAGMENT = document.createDocumentFragment();
-  FRAGMENT.appendChild(renderCard(adverts[0]));
+  FRAGMENT.appendChild(renderCard(advert));
   MAP_FILTER_CONTAINER.before(FRAGMENT);
 };
 
-// generatePinTemplate();
-// generateCardTemplate();
