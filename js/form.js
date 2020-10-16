@@ -18,7 +18,7 @@
 
   const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
 
-  FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
+  FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
 
   const onCapacityChange = function (value) {
     for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
@@ -98,7 +98,6 @@
     pageActived() {
       MAP.classList.remove(`map--faded`);
       AD_FORM.classList.remove(`ad-form--disabled`);
-      FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)};${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight - 156)}`;
       onCapacityChange(FORM_ROOM_NUMBERS.value);
       onApartmentChange(FORM_APARTMENT_TYPE.value);
       window.utils.removeDisabled(AD_FORM.children);
