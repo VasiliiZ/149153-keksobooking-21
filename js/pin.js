@@ -24,9 +24,9 @@
     return PIN;
   };
   window.pin = {
-    generatePinTemplate() {
+    generatePinTemplate(adverts) {
       const FRAGMENT = document.createDocumentFragment();
-      window.adverts.forEach((element) => FRAGMENT.appendChild(renderPin(element)));
+      adverts.forEach((element) => FRAGMENT.appendChild(renderPin(element)));
       MAP_PINS.appendChild(FRAGMENT);
     }
   };
