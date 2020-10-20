@@ -94,6 +94,21 @@
     }
   });
 
+  const successHandler = function (adverts) {
+    window.pin.generatePinTemplate(adverts);
+  };
+
+  const errorHandler = function (errorMessage) {
+    let node = document.createElement(`div`);
+    node.style = `z-index: 100; margin: 0 auto; text-align: center; background-color: red;`;
+    node.style.position = `absolute`;
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = `15px`;
+    node.textContent = errorMessage;
+    MAP.insertAdjacentElement(`afterbegin`, node);
+  };
+
   window.form = {
     pageActived() {
       MAP.classList.remove(`map--faded`);
@@ -103,6 +118,7 @@
       window.utils.removeDisabled(AD_FORM.children);
       window.utils.removeDisabled(MAP_FILTERS.children);
       FORM_ADDRESS.setAttribute(`disabled`, `disabled`);
+      window.backend.load(successHandler, errorHandler);
     }
   };
 })();
