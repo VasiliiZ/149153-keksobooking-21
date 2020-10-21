@@ -11,16 +11,15 @@
   const PIN_HEIGHT = 87;
   const PIN_WIDTH = 65;
 
-  let isPageActiveted = false;
 
   const getAdressCoords = function () {
     FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight - PIN_HEIGHT)}`;
   };
 
   MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
-    if (evt.button === window.constants.LEFT_MOUSE_BTN && !isPageActiveted) {
+    if (evt.button === window.constants.LEFT_MOUSE_BTN && !window.utils.isPageActiveted) {
       window.form.pageActived();
-      isPageActiveted = true;
+      window.utils.isPageActiveted = true;
     }
 
     let startCoords = {
@@ -67,9 +66,9 @@
   });
 
   MAIN_MAP_PIN.addEventListener(`keydown`, function (evt) {
-    if (evt.key === window.constants.BUTTON_ENTER && !isPageActiveted) {
+    if (evt.key === window.constants.BUTTON_ENTER && !window.utils.isPageActiveted) {
       window.form.pageActived();
-      isPageActiveted = true;
+      window.utils.isPageActiveted = true;
     }
   });
 
