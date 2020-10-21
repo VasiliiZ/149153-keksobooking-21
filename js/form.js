@@ -15,10 +15,15 @@
   const FORM_CAPACITY_OPTIONS = AD_FORM.querySelectorAll(`#capacity option`);
   const FORM_APARTMENT_PRICE = AD_FORM.querySelector(`#price`);
   const FORM_ADDRESS = AD_FORM.querySelector(`#address`);
-
+  const MAIN = document.querySelector(`main`);
+  const FORM_RESET_BUTTON = AD_FORM.querySelector(`.ad-form__reset`);
   const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
 
   FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
+
+  FORM_RESET_BUTTON.addEventListener(`click`, function () {
+    AD_FORM.reset();
+  });
 
   const onCapacityChange = function (value) {
     for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
@@ -107,6 +112,65 @@
     node.style.fontSize = `15px`;
     node.textContent = errorMessage;
     MAP.insertAdjacentElement(`afterbegin`, node);
+  };
+
+  const successSendHandler = function () {
+    window.utils.setDisabledPage();
+    const SUCCESS_TEMPLATE = document.querySelector(`#success`).content;
+    const SUCCESS = SUCCESS_TEMPLATE.cloneNode(true);
+    document.addEventListener(`click`, function () {
+      hideSuccessMessage();
+    });
+    const FRAGMENT = document.createDocumentFragment();
+    FRAGMENT.appendChild(SUCCESS);
+    MAIN.appendChild(FRAGMENT);
+    document.addEventListener(`keydown`, onSuccessEscPress);
+  };
+
+  const errorSendHandler = function () {
+    const ERROR_TEMPLATE = document.querySelector(`#error`).content;
+    const ERROR = ERROR_TEMPLATE.cloneNode(true);
+    const ERROR_BUTTON = ERROR.querySelector(`.error__button`);
+    ERROR_BUTTON.addEventListener(`click`, function () {
+      hideErrorMessage();
+    });
+    document.addEventListener(`click`, function () {
+      hideErrorMessage();
+    });
+    const FRAGMENT = document.createDocumentFragment();
+    FRAGMENT.appendChild(ERROR);
+    MAIN.appendChild(FRAGMENT);
+    document.addEventListener(`keydown`, onErrorEscPress);
+  };
+
+  AD_FORM.addEventListener(`submit`, function (evt) {
+    evt.preventDefault();
+    FORM_ADDRESS.removeAttribute(`disabled`);
+    window.backend.send(new FormData(AD_FORM), successSendHandler, errorSendHandler);
+  });
+
+  const onErrorEscPress = function (evt) {
+    if (evt.key === window.constants.BUTTON_ESC) {
+      hideErrorMessage();
+    }
+  };
+
+  const onSuccessEscPress = function (evt) {
+    if (evt.key === window.constants.BUTTON_ESC) {
+      hideSuccessMessage();
+    }
+  };
+
+  const hideErrorMessage = function () {
+    const ERROR = document.querySelector(`.error`);
+    MAIN.removeChild(ERROR);
+    document.removeEventListener(`keydown`, onErrorEscPress);
+  };
+
+  const hideSuccessMessage = function () {
+    const SUCCESS = document.querySelector(`.success`);
+    MAIN.removeChild(SUCCESS);
+    document.removeEventListener(`keydown`, onSuccessEscPress);
   };
 
   window.form = {
