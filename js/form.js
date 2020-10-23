@@ -18,6 +18,7 @@
   const MAIN = document.querySelector(`main`);
   const FORM_RESET_BUTTON = AD_FORM.querySelector(`.ad-form__reset`);
   const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
+  const HOUSING_TYPE = MAP_FILTERS.querySelector(`#housing-type`);
 
   FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
 
@@ -99,9 +100,27 @@
     }
   });
 
-  const successHandler = function (adverts) {
-    window.pin.generatePinTemplate(adverts);
+  let adverts = [];
+
+  const successHandler = function (data) {
+    adverts = data;
+    window.pin.generatePinTemplate(data);
   };
+
+  HOUSING_TYPE.addEventListener(`change`, function (evt) {
+    const popup = MAP.querySelector(`.popup`);
+    if (popup) {
+      MAP.removeChild(popup);
+    }
+    let filtered = adverts.filter((item) => {
+      return item.offer.type === evt.target.value;
+    });
+    if (evt.target.value === `Любой тип жилья`) {
+      filtered = adverts;
+    }
+    window.pin.generatePinTemplate(filtered);
+  });
+
 
   const errorHandler = function (errorMessage) {
     let node = document.createElement(`div`);
