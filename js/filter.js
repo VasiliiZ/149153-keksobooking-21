@@ -26,7 +26,7 @@ const priceRange = {
 
 let map = document.querySelector(`.map`);
 
-const checkPopup = function () {
+const checkPopup = () => {
   const popup = map.querySelector(`.popup`);
   if (popup) {
     map.removeChild(popup);
