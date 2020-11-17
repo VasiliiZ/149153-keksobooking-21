@@ -8,9 +8,12 @@ const METHODS = {
 const ServerStatus = {
   OK: 200
 };
+
+let xhr;
+
 window.backend = {
   load(onLoad, onError) {
-    const xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking/data`;
     xhr.responseType = `json`;
     xhr.addEventListener(`load`, function () {
@@ -31,9 +34,8 @@ window.backend = {
     xhr.send();
   },
   send(data, onLoad, onError) {
-    const xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking`;
-    xhr.responseType = `json`;
     xhr.addEventListener(`load`, function () {
       if (xhr.status === ServerStatus.OK) {
         onLoad();

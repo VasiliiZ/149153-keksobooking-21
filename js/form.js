@@ -1,113 +1,147 @@
 'use strict';
 
-const APARTMENT_TYPE = [`Palace`, `Flat`, `House`, `Bungalow`];
-const APARTMENT_PRICE = [`0`, `1000`, `5000`, `10000`];
-const ROOM_SIZE_MAP = {
+const APARTMENT_TYPES = [`Palace`, `Flat`, `House`, `Bungalow`];
+const APARTMENT_PRICES = [`0`, `1000`, `5000`, `10000`];
+const RoomSize = {
   OneBedroom: `1`,
   TwoBedroom: `2`,
   ThreeBedroom: `3`
 };
-const MAP = document.querySelector(`.map`);
-const MAP_FILTERS = MAP.querySelector(`.map__filters`);
-const AD_FORM = document.querySelector(`.ad-form`);
-const FORM_CAPACITY = AD_FORM.querySelector(`#capacity`);
-const FORM_CAPACITY_OPTIONS = AD_FORM.querySelectorAll(`#capacity option`);
-const FORM_APARTMENT_PRICE = AD_FORM.querySelector(`#price`);
-const FORM_ADDRESS = AD_FORM.querySelector(`#address`);
-const MAIN = document.querySelector(`main`);
-const FORM_RESET_BUTTON = AD_FORM.querySelector(`.ad-form__reset`);
-const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
-const HOUSING_TYPE = MAP_FILTERS.querySelector(`#housing-type`);
-const HOUSING_PRICE = MAP_FILTERS.querySelector(`#housing-price`);
-const HOUSING_ROOMS = MAP_FILTERS.querySelector(`#housing-rooms`);
-const HOUSING_QUESTS = MAP_FILTERS.querySelector(`#housing-guests`);
-const FEATURES = document.querySelectorAll(`.map__feature`);
+const PIN_HEIGHT = 87;
+const DEFAULT_PIN_LEFT = mainMapPin.style.left;
+const DEFAULT_PIN_TOP = mainMapPin.style.top;
 
-FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight / 2)}`;
+let map = document.querySelector(`.map`);
+let mainMapPin = map.querySelector(`.map__pin--main`);
+let mapFilters = map.querySelector(`.map__filters`);
+let adForm = document.querySelector(`.ad-form`);
+let formCapacity = adForm.querySelector(`#capacity`);
+let formCapacityOptions = adForm.querySelectorAll(`#capacity option`);
+let formApartmentPrice = adForm.querySelector(`#price`);
+let formAdress = adForm.querySelector(`#address`);
+let main = document.querySelector(`main`);
+let formResetButton = adForm.querySelector(`.ad-form__reset`);
+let housingType = mapFilters.querySelector(`#housing-type`);
+let housingPrice = mapFilters.querySelector(`#housing-price`);
+let housingRooms = mapFilters.querySelector(`#housing-rooms`);
+let housingGuests = mapFilters.querySelector(`#housing-guests`);
+let features = document.querySelectorAll(`.map__feature`);
+let featureCheckbox = document.querySelectorAll(`.map__checkbox`);
+let avatar = document.querySelector(`.ad-form-header__preview img`);
+let foto = document.querySelector(`.ad-form__photo`);
 
-FORM_RESET_BUTTON.addEventListener(`click`, function () {
-  AD_FORM.reset();
-});
+
+const clearForm = function () {
+  window.utils.setDisabledPage();
+  mainMapPin.style.left = DEFAULT_PIN_LEFT;
+  mainMapPin.style.top = DEFAULT_PIN_TOP;
+  housingType.value = `any`;
+  housingPrice.value = `any`;
+  housingRooms.value = `any`;
+  housingGuests.value = `any`;
+  featureCheckbox.forEach((feature)=>{
+    feature.checked = false;
+  });
+  filteredState = {
+    type: `any`,
+    price: `any`,
+    rooms: `any`,
+    guests: `any`
+  };
+  avatar.src = `img/muffin-grey.svg`;
+  foto.style.backgroundImage = ``;
+  formAdress.value = `${Math.floor(parseInt(mainMapPin.style.left, 10) + mainMapPin.clientWidth / 2)}, ${Math.floor(parseInt(mainMapPin.style.top, 10) + mainMapPin.clientHeight - PIN_HEIGHT)}`;
+};
+
+
+formResetButton.addEventListener(`click`, clearForm);
 
 const onCapacityChange = function (value) {
-  for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
-    FORM_CAPACITY.removeChild(FORM_CAPACITY[i]);
+  for (let i = formCapacity.length - 1; i >= 0; i--) {
+    formCapacity.removeChild(formCapacity[i]);
   }
   switch (value) {
-    case ROOM_SIZE_MAP.OneBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+    case RoomSize.OneBedroom:
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
-    case ROOM_SIZE_MAP.TwoBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+    case RoomSize.TwoBedroom:
+      formCapacity.appendChild(formCapacityOptions[1]);
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
-    case ROOM_SIZE_MAP.ThreeBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[0]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+    case RoomSize.ThreeBedroom:
+      formCapacity.appendChild(formCapacityOptions[0]);
+      formCapacity.appendChild(formCapacityOptions[1]);
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
     default:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[3]);
+      formCapacity.appendChild(formCapacityOptions[3]);
   }
 };
 
-const FORM_ROOM_NUMBERS = AD_FORM.querySelector(`#room_number`);
+let formRoomNumbers = adForm.querySelector(`#room_number`);
 
-FORM_ROOM_NUMBERS.addEventListener(`change`, function (evt) {
+formRoomNumbers.addEventListener(`change`, function (evt) {
   onCapacityChange(evt.target.value);
 });
 
 const onApartmentChange = function (value) {
   switch (value) {
-    case APARTMENT_TYPE[0].toLowerCase():
-      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[3]);
-      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[3]);
+    case APARTMENT_TYPES[0].toLowerCase():
+      formApartmentPrice.setAttribute(`min`, APARTMENT_PRICES[3]);
+      formApartmentPrice.setAttribute(`placeholder`, APARTMENT_PRICES[3]);
       break;
-    case APARTMENT_TYPE[1].toLowerCase():
-      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[1]);
-      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[1]);
+    case APARTMENT_TYPES[1].toLowerCase():
+      formApartmentPrice.setAttribute(`min`, APARTMENT_PRICES[1]);
+      formApartmentPrice.setAttribute(`placeholder`, APARTMENT_PRICES[1]);
       break;
-    case APARTMENT_TYPE[2].toLowerCase():
-      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[2]);
-      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[2]);
+    case APARTMENT_TYPES[2].toLowerCase():
+      formApartmentPrice.setAttribute(`min`, APARTMENT_PRICES[2]);
+      formApartmentPrice.setAttribute(`placeholder`, APARTMENT_PRICES[2]);
       break;
     default:
-      FORM_APARTMENT_PRICE.setAttribute(`min`, APARTMENT_PRICE[0]);
-      FORM_APARTMENT_PRICE.setAttribute(`placeholder`, APARTMENT_PRICE[0]);
+      formApartmentPrice.setAttribute(`min`, APARTMENT_PRICES[0]);
+      formApartmentPrice.setAttribute(`placeholder`, APARTMENT_PRICES[0]);
   }
 };
 
-const FORM_APARTMENT_TYPE = AD_FORM.querySelector(`#type`);
+let formApartmentType = adForm.querySelector(`#type`);
 
-FORM_APARTMENT_TYPE.addEventListener(`change`, function (evt) {
+formApartmentType.addEventListener(`change`, function (evt) {
   onApartmentChange(evt.target.value);
 });
 
-const FORM_APARTMENT_TIMEIN = AD_FORM.querySelector(`#timein`);
+let formApartmentTimein = adForm.querySelector(`#timein`);
 
-FORM_APARTMENT_TIMEIN.addEventListener(`change`, function (evt) {
-  for (let element of FORM_APARTMENT_TIMEOUT.children) {
+formApartmentTimein.addEventListener(`change`, function (evt) {
+  for (let element of formApartmentTimeout.children) {
     if (evt.target.value === element.value) {
-      FORM_APARTMENT_TIMEOUT.value = element.value;
+      formApartmentTimeout.value = element.value;
     }
   }
 });
 
-const FORM_APARTMENT_TIMEOUT = AD_FORM.querySelector(`#timeout`);
+let formApartmentTimeout = adForm.querySelector(`#timeout`);
 
-FORM_APARTMENT_TIMEOUT.addEventListener(`change`, function (evt) {
-  for (let element of FORM_APARTMENT_TIMEIN.children) {
+formApartmentTimeout.addEventListener(`change`, function (evt) {
+  for (let element of formApartmentTimein.children) {
     if (evt.target.value === element.value) {
-      FORM_APARTMENT_TIMEIN.value = element.value;
+      formApartmentTimein.value = element.value;
     }
   }
 });
 
 let adverts = [];
 
-const successHandler = function (data) {
+const onPageload = function (data) {
+  map.classList.remove(`map--faded`);
+  adForm.classList.remove(`ad-form--disabled`);
+  onCapacityChange(formRoomNumbers.value);
+  onApartmentChange(formApartmentType.value);
+  window.utils.removeDisabled(adForm.children);
+  window.utils.removeDisabled(mapFilters.children);
+  formAdress.setAttribute(`disabled`, `disabled`);
   adverts = data;
-  window.pin.generatePinTemplate(data);
+  window.pin.generateTemplate(data);
 };
 
 let filteredState = {
@@ -118,34 +152,34 @@ let filteredState = {
 };
 
 
-HOUSING_TYPE.addEventListener(`change`, function (evt) {
+housingType.addEventListener(`change`, function (evt) {
   filteredState.type = evt.target.value;
   window.debounce(window.filter.byType(adverts, filteredState));
 });
 
-HOUSING_PRICE.addEventListener(`change`, function (evt) {
+housingPrice.addEventListener(`change`, function (evt) {
   filteredState.price = evt.target.value;
   window.debounce(window.filter.byType(adverts, filteredState));
 });
 
-HOUSING_ROOMS.addEventListener(`change`, function (evt) {
+housingRooms.addEventListener(`change`, function (evt) {
   filteredState.rooms = evt.target.value;
   window.debounce(window.filter.byType(adverts, filteredState));
 });
 
-HOUSING_QUESTS.addEventListener(`change`, function (evt) {
+housingGuests.addEventListener(`change`, function (evt) {
   filteredState.guests = evt.target.value;
   window.debounce(window.filter.byType(adverts, filteredState));
 });
 
-FEATURES.forEach((item) =>{
+features.forEach((item) =>{
   item.addEventListener(`click`, function (evt) {
     window.filter.byFeature(evt.target.textContent);
     window.debounce(window.filter.byType(adverts, filteredState));
   });
 });
 
-const errorHandler = function (errorMessage) {
+const onPageLoadError = function (errorMessage) {
   let node = document.createElement(`div`);
   node.style = `z-index: 100; margin: 0 auto; text-align: center; background-color: red;`;
   node.style.position = `absolute`;
@@ -153,23 +187,21 @@ const errorHandler = function (errorMessage) {
   node.style.right = 0;
   node.style.fontSize = `15px`;
   node.textContent = errorMessage;
-  MAP.insertAdjacentElement(`afterbegin`, node);
+  map.insertAdjacentElement(`afterbegin`, node);
 };
 
-const successSendHandler = function () {
-  window.utils.setDisabledPage();
+const onFormSend = function () {
+  clearForm();
   const SUCCESS_TEMPLATE = document.querySelector(`#success`).content;
   const SUCCESS = SUCCESS_TEMPLATE.cloneNode(true);
-  document.addEventListener(`click`, function () {
-    hideSuccessMessage();
-  });
+  document.addEventListener(`click`, hideSuccessMessage);
   const FRAGMENT = document.createDocumentFragment();
   FRAGMENT.appendChild(SUCCESS);
-  MAIN.appendChild(FRAGMENT);
+  main.appendChild(FRAGMENT);
   document.addEventListener(`keydown`, onSuccessEscPress);
 };
 
-const errorSendHandler = function () {
+const onFormSendError = function () {
   const ERROR_TEMPLATE = document.querySelector(`#error`).content;
   const ERROR = ERROR_TEMPLATE.cloneNode(true);
   const ERROR_BUTTON = ERROR.querySelector(`.error__button`);
@@ -181,14 +213,13 @@ const errorSendHandler = function () {
   });
   const FRAGMENT = document.createDocumentFragment();
   FRAGMENT.appendChild(ERROR);
-  MAIN.appendChild(FRAGMENT);
+  main.appendChild(FRAGMENT);
   document.addEventListener(`keydown`, onErrorEscPress);
 };
 
-AD_FORM.addEventListener(`submit`, function (evt) {
+adForm.addEventListener(`submit`, function (evt) {
   evt.preventDefault();
-  FORM_ADDRESS.removeAttribute(`disabled`);
-  window.backend.send(new FormData(AD_FORM), successSendHandler, errorSendHandler);
+  window.backend.send(new FormData(adForm), onFormSend, onFormSendError);
 });
 
 const onErrorEscPress = function (evt) {
@@ -204,26 +235,20 @@ const onSuccessEscPress = function (evt) {
 };
 
 const hideErrorMessage = function () {
-  const ERROR = document.querySelector(`.error`);
-  MAIN.removeChild(ERROR);
+  let error = document.querySelector(`.error`);
+  main.removeChild(error);
   document.removeEventListener(`keydown`, onErrorEscPress);
 };
 
 const hideSuccessMessage = function () {
-  const SUCCESS = document.querySelector(`.success`);
-  MAIN.removeChild(SUCCESS);
+  let success = document.querySelector(`.success`);
+  main.removeChild(success);
   document.removeEventListener(`keydown`, onSuccessEscPress);
+  document.removeEventListener(`click`, hideSuccessMessage);
 };
 
 window.form = {
   pageActived() {
-    MAP.classList.remove(`map--faded`);
-    AD_FORM.classList.remove(`ad-form--disabled`);
-    onCapacityChange(FORM_ROOM_NUMBERS.value);
-    onApartmentChange(FORM_APARTMENT_TYPE.value);
-    window.utils.removeDisabled(AD_FORM.children);
-    window.utils.removeDisabled(MAP_FILTERS.children);
-    FORM_ADDRESS.setAttribute(`disabled`, `disabled`);
-    window.backend.load(successHandler, errorHandler);
+    window.backend.load(onPageload, onPageLoadError);
   }
 };

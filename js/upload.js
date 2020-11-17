@@ -6,6 +6,7 @@ let avatarChooser = document.querySelector(`.ad-form__field input[type=file]`);
 let avatar = document.querySelector(`.ad-form-header__preview img`);
 let fotoChooser = document.querySelector(`.ad-form__upload input[type=file]`);
 let foto = document.querySelector(`.ad-form__photo`);
+let reader;
 
 avatarChooser.addEventListener(`change`, function () {
   let file = avatarChooser.files[0];
@@ -16,7 +17,7 @@ avatarChooser.addEventListener(`change`, function () {
   });
 
   if (matches) {
-    let reader = new FileReader();
+    reader = new FileReader();
 
     reader.addEventListener(`load`, function () {
       avatar.src = reader.result;
@@ -35,7 +36,7 @@ fotoChooser.addEventListener(`change`, function () {
   });
 
   if (matches) {
-    let reader = new FileReader();
+    reader = new FileReader();
 
     reader.addEventListener(`load`, function () {
       foto.style.backgroundImage = `url(${reader.result})`;

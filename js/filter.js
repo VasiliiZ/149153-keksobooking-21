@@ -1,13 +1,14 @@
 'use strict';
-const MAP = document.querySelector(`.map`);
 
-const checkPopup = function () {
-  const popup = MAP.querySelector(`.popup`);
-  if (popup) {
-    MAP.removeChild(popup);
-  }
+const DEFAULT_TYPE = `any`;
+const FEATURES_MAP = {
+  "Wi-Fi": `wifi`,
+  "Посудомоечная машина": `dishwasher`,
+  "Парковка": `parking`,
+  "Стиральная машина": `washer`,
+  "Лифт": `elevator`,
+  "Кондиционер": `conditioner`
 };
-
 const priceRange = {
   low: {
     min: 0,
@@ -19,11 +20,18 @@ const priceRange = {
   },
   high: {
     min: 50000,
-    max: 1000000
+    max: 10000000
   }
 };
 
-const DEFAULT_TYPE = `any`;
+let map = document.querySelector(`.map`);
+
+const checkPopup = function () {
+  const popup = map.querySelector(`.popup`);
+  if (popup) {
+    map.removeChild(popup);
+  }
+};
 
 const filteredByType = function (arr, type) {
   return type !== DEFAULT_TYPE ? arr.filter((item) => item.offer.type === type) : arr;
@@ -59,14 +67,6 @@ const filteredByFeatures = function (arr) {
   return arr.filter((item)=>findFeature(item.offer.features));
 };
 
-const FEATURES_MAP = {
-  "Wi-Fi": `wifi`,
-  "Посудомоечная машина": `dishwasher`,
-  "Парковка": `parking`,
-  "Стиральная машина": `washer`,
-  "Лифт": `elevator`,
-  "Кондиционер": `conditioner`
-};
 
 let comparedFeatures = [];
 
@@ -90,7 +90,7 @@ window.filter = {
     filtered = filteredByRooms(filtered, filteredState.rooms);
     filtered = filteredByGuests(filtered, filteredState.guests);
     filtered = filteredByFeatures(filtered);
-    window.pin.generatePinTemplate(filtered);
+    window.pin.generateTemplate(filtered);
   },
   byFeature(feature) {
     getMatch(comparedFeatures, FEATURES_MAP[feature]);
