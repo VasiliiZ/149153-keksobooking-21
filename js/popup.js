@@ -1,27 +1,28 @@
 'use strict';
 
-const MAP = document.querySelector(`.map`);
+let map = document.querySelector(`.map`);
+
 const onPopupEscPress = function (evt) {
   if (evt.key === window.constants.BUTTON_ESC) {
     evt.preventDefault();
-    window.popup.closePopup();
+    window.popup.close();
   }
 };
 window.popup = {
-  openPopup(advert) {
-    const popup = MAP.querySelector(`.popup`);
+  open(advert) {
+    let popup = map.querySelector(`.popup`);
     if (popup) {
-      MAP.removeChild(popup);
+      map.removeChild(popup);
     }
-    window.card.generateCardTemplate(advert);
+    window.card.generateTemplate(advert);
     document.addEventListener(`keydown`, onPopupEscPress);
-    const closeBtn = MAP.querySelector(`.popup__close`);
-    closeBtn.addEventListener(`click`, this.closePopup);
+    let closeBtn = map.querySelector(`.popup__close`);
+    closeBtn.addEventListener(`click`, this.close);
 
   },
-  closePopup() {
-    const popup = MAP.querySelector(`.popup`);
-    MAP.removeChild(popup);
+  close() {
+    let popup = map.querySelector(`.popup`);
+    map.removeChild(popup);
     document.removeEventListener(`keydown`, onPopupEscPress);
   }
 };
