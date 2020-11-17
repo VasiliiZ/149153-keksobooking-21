@@ -8,11 +8,14 @@ const RoomSize = {
   ThreeBedroom: `3`
 };
 const PIN_HEIGHT = 87;
+
+let mainMapPin = map.querySelector(`.map__pin--main`);
+
 const DEFAULT_PIN_LEFT = mainMapPin.style.left;
 const DEFAULT_PIN_TOP = mainMapPin.style.top;
 
 let map = document.querySelector(`.map`);
-let mainMapPin = map.querySelector(`.map__pin--main`);
+
 let mapFilters = map.querySelector(`.map__filters`);
 let adForm = document.querySelector(`.ad-form`);
 let formCapacity = adForm.querySelector(`#capacity`);

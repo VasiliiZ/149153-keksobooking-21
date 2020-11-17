@@ -2,7 +2,7 @@
 
 let map = document.querySelector(`.map`);
 
-const onPopupEscPress = function (evt) {
+const onPopupEscPress = (evt) => {
   if (evt.key === window.constants.BUTTON_ESC) {
     evt.preventDefault();
     window.popup.close();

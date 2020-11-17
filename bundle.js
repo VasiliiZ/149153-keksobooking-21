@@ -14,8 +14,9 @@ let avatarChooser = document.querySelector(`.ad-form__field input[type=file]`);
 let avatar = document.querySelector(`.ad-form-header__preview img`);
 let fotoChooser = document.querySelector(`.ad-form__upload input[type=file]`);
 let foto = document.querySelector(`.ad-form__photo`);
+let reader;
 
-avatarChooser.addEventListener(`change`, function () {
+avatarChooser.addEventListener(`change`, () => {
   let file = avatarChooser.files[0];
   let fileName = file.name.toLowerCase();
 
@@ -24,9 +25,9 @@ avatarChooser.addEventListener(`change`, function () {
   });
 
   if (matches) {
-    let reader = new FileReader();
+    reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () => {
       avatar.src = reader.result;
     });
 
@@ -34,7 +35,7 @@ avatarChooser.addEventListener(`change`, function () {
   }
 });
 
-fotoChooser.addEventListener(`change`, function () {
+fotoChooser.addEventListener(`change`, () => {
   let file = fotoChooser.files[0];
   let fileName = file.name.toLowerCase();
 
@@ -43,9 +44,9 @@ fotoChooser.addEventListener(`change`, function () {
   });
 
   if (matches) {
-    let reader = new FileReader();
+    reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () =>{
       foto.style.backgroundImage = `url(${reader.result})`;
     });
 
@@ -87,9 +88,12 @@ const METHODS = {
 const ServerStatus = {
   OK: 200
 };
-const xhr = new XMLHttpRequest();
+
+let xhr;
+
 window.backend = {
   load(onLoad, onError) {
+    xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking/data`;
     xhr.responseType = `json`;
     xhr.addEventListener(`load`, function () {
@@ -110,6 +114,7 @@ window.backend = {
     xhr.send();
   },
   send(data, onLoad, onError) {
+    xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking`;
     xhr.addEventListener(`load`, function () {
       if (xhr.status === ServerStatus.OK) {
@@ -153,48 +158,48 @@ const renderCard = function (card) {
   const CARD = cardTemplate.cloneNode(true);
   let title = CARD.querySelector(`.popup__title`);
   let address = CARD.querySelector(`.popup__text--address`);
-  const PRICE = CARD.querySelector(`.popup__text--price`);
-  const APARTMENT = CARD.querySelector(`.popup__type`);
-  const CAPACITY = CARD.querySelector(`.popup__text--capacity`);
-  const TIME = CARD.querySelector(`.popup__text--time`);
-  const FEATURES = CARD.querySelector(`.popup__features`);
-  const FEATURE = FEATURES.querySelectorAll(`.popup__feature`);
-  const DESCRIPTION = CARD.querySelector(`.popup__description`);
-  const PHOTOS = CARD.querySelector(`.popup__photos`);
-  const PHOTO = PHOTOS.querySelector(`.popup__photo`);
-  const AVATAR = CARD.querySelector(`.popup__avatar`);
+  let price = CARD.querySelector(`.popup__text--price`);
+  let apartment = CARD.querySelector(`.popup__type`);
+  let capacity = CARD.querySelector(`.popup__text--capacity`);
+  let time = CARD.querySelector(`.popup__text--time`);
+  let features = CARD.querySelector(`.popup__features`);
+  let feature = features.querySelectorAll(`.popup__feature`);
+  let description = CARD.querySelector(`.popup__description`);
+  let photos = CARD.querySelector(`.popup__photos`);
+  let photo = photos.querySelector(`.popup__photo`);
+  let avatar = CARD.querySelector(`.popup__avatar`);
   title.textContent = card.offer.title;
   address.textContent = card.offer.address;
-  PRICE.textContent = `${card.offer.price}₽/ночь`;
-  APARTMENT.textContent = APARTMENT_TYPE_MAP[card.offer.type];
-  CAPACITY.textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
-  TIME.textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
-  DESCRIPTION.textContent = card.offer.description;
-  AVATAR.src = card.author.avatar;
+  price.textContent = `${card.offer.price}₽/ночь`;
+  apartment.textContent = APARTMENT_TYPE_MAP[card.offer.type];
+  capacity.textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
+  time.textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
+  description.textContent = card.offer.description;
+  avatar.src = card.author.avatar;
 
-  FEATURE.forEach((element) => {
-    FEATURES.removeChild(element);
+  feature.forEach((element) => {
+    features.removeChild(element);
   });
 
   card.offer.features.forEach((element) => {
-    let feature = document.createElement(`li`);
-    feature.classList.add(`popup__feature`);
-    feature.classList.add(`popup__feature--${element}`);
-    FEATURES.appendChild(feature);
+    let featureElem = document.createElement(`li`);
+    featureElem.classList.add(`popup__feature`);
+    featureElem.classList.add(`popup__feature--${element}`);
+    features.appendChild(featureElem);
   });
 
-  PHOTOS.removeChild(PHOTO);
+  photos.removeChild(photo);
 
   card.offer.photos.forEach((element) => {
-    let photo = PHOTO;
-    photo.src = element;
-    PHOTOS.appendChild(photo);
+    let photoElem = photo;
+    photoElem.src = element;
+    photos.appendChild(photoElem);
   });
   return CARD;
 };
 
 window.card = {
-  generateCardTemplate(advert) {
+  generateTemplate(advert) {
     const FRAGMENT = document.createDocumentFragment();
     FRAGMENT.appendChild(renderCard(advert));
     MAP_FILTER_CONTAINER.before(FRAGMENT);
@@ -211,28 +216,29 @@ window.card = {
 /*! runtime requirements:  */
 
 
-const MAP = document.querySelector(`.map`);
-const onPopupEscPress = function (evt) {
+let map = document.querySelector(`.map`);
+
+const onPopupEscPress = (evt) => {
   if (evt.key === window.constants.BUTTON_ESC) {
     evt.preventDefault();
-    window.popup.closePopup();
+    window.popup.close();
   }
 };
 window.popup = {
-  openPopup(advert) {
-    const popup = MAP.querySelector(`.popup`);
+  open(advert) {
+    let popup = map.querySelector(`.popup`);
     if (popup) {
-      MAP.removeChild(popup);
+      map.removeChild(popup);
     }
-    window.card.generateCardTemplate(advert);
+    window.card.generateTemplate(advert);
     document.addEventListener(`keydown`, onPopupEscPress);
-    const closeBtn = MAP.querySelector(`.popup__close`);
-    closeBtn.addEventListener(`click`, this.closePopup);
+    let closeBtn = map.querySelector(`.popup__close`);
+    closeBtn.addEventListener(`click`, this.close);
 
   },
-  closePopup() {
-    const popup = MAP.querySelector(`.popup`);
-    MAP.removeChild(popup);
+  close() {
+    let popup = map.querySelector(`.popup`);
+    map.removeChild(popup);
     document.removeEventListener(`keydown`, onPopupEscPress);
   }
 };
@@ -257,7 +263,6 @@ let mapPins = map.querySelector(`.map__pins`);
 
 
 const renderPin = function (advert) {
-
   const PIN = pinTemplate.cloneNode(true);
   let pinImage = PIN.querySelector(`img`);
   pinImage.src = advert.author.avatar;
@@ -272,23 +277,23 @@ const renderPin = function (advert) {
       }
     });
     evt.currentTarget.classList.add(`map__pin--active`);
-    window.popup.openPopup(advert);
+    window.popup.open(advert);
   });
   PIN.addEventListener(`keydown`, function (evt) {
     if (evt.key === window.constants.BUTTON_ENTER) {
       evt.preventDefault();
-      window.popup.openPopup(advert);
+      window.popup.open(advert);
     }
   });
   return PIN;
 };
 window.pin = {
   generateTemplate(adverts) {
+    const FRAGMENT = document.createDocumentFragment();
     let pins = map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
     if (pins) {
       pins.forEach((item)=>mapPins.removeChild(item));
     }
-    const FRAGMENT = document.createDocumentFragment();
     let tekeNumber = MAX_VISIBLE_PIN < adverts.length ? MAX_VISIBLE_PIN : adverts.length;
     for (let i = 0; i < tekeNumber; i++) {
       FRAGMENT.appendChild(renderPin(adverts[i]));
@@ -331,15 +336,16 @@ window.debounce = function (cb) {
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
 
-const MAP = document.querySelector(`.map`);
 
-const checkPopup = function () {
-  const popup = MAP.querySelector(`.popup`);
-  if (popup) {
-    MAP.removeChild(popup);
-  }
+const DEFAULT_TYPE = `any`;
+const FEATURES_MAP = {
+  "Wi-Fi": `wifi`,
+  "Посудомоечная машина": `dishwasher`,
+  "Парковка": `parking`,
+  "Стиральная машина": `washer`,
+  "Лифт": `elevator`,
+  "Кондиционер": `conditioner`
 };
-
 const priceRange = {
   low: {
     min: 0,
@@ -355,7 +361,14 @@ const priceRange = {
   }
 };
 
-const DEFAULT_TYPE = `any`;
+let map = document.querySelector(`.map`);
+
+const checkPopup = () => {
+  const popup = map.querySelector(`.popup`);
+  if (popup) {
+    map.removeChild(popup);
+  }
+};
 
 const filteredByType = function (arr, type) {
   return type !== DEFAULT_TYPE ? arr.filter((item) => item.offer.type === type) : arr;
@@ -391,14 +404,6 @@ const filteredByFeatures = function (arr) {
   return arr.filter((item)=>findFeature(item.offer.features));
 };
 
-const FEATURES_MAP = {
-  "Wi-Fi": `wifi`,
-  "Посудомоечная машина": `dishwasher`,
-  "Парковка": `parking`,
-  "Стиральная машина": `washer`,
-  "Лифт": `elevator`,
-  "Кондиционер": `conditioner`
-};
 
 let comparedFeatures = [];
 
@@ -449,20 +454,19 @@ const RoomSize = {
   ThreeBedroom: `3`
 };
 const PIN_HEIGHT = 87;
+const DEFAULT_PIN_LEFT = mainMapPin.style.left;
+const DEFAULT_PIN_TOP = mainMapPin.style.top;
 
 let map = document.querySelector(`.map`);
 let mainMapPin = map.querySelector(`.map__pin--main`);
 let mapFilters = map.querySelector(`.map__filters`);
 let adForm = document.querySelector(`.ad-form`);
-
-const DEFAULT_PIN_LEFT = mainMapPin.style.left;
-const DEFAULT_PIN_TOP = mainMapPin.style.top;
-const FORM_CAPACITY = adForm.querySelector(`#capacity`);
-const FORM_CAPACITY_OPTIONS = adForm.querySelectorAll(`#capacity option`);
+let formCapacity = adForm.querySelector(`#capacity`);
+let formCapacityOptions = adForm.querySelectorAll(`#capacity option`);
 let formApartmentPrice = adForm.querySelector(`#price`);
 let formAdress = adForm.querySelector(`#address`);
-const MAIN = document.querySelector(`main`);
-const FORM_RESET_BUTTON = adForm.querySelector(`.ad-form__reset`);
+let main = document.querySelector(`main`);
+let formResetButton = adForm.querySelector(`.ad-form__reset`);
 let housingType = mapFilters.querySelector(`#housing-type`);
 let housingPrice = mapFilters.querySelector(`#housing-price`);
 let housingRooms = mapFilters.querySelector(`#housing-rooms`);
@@ -496,33 +500,33 @@ const clearForm = function () {
 };
 
 
-FORM_RESET_BUTTON.addEventListener(`click`, clearForm);
+formResetButton.addEventListener(`click`, clearForm);
 
 const onCapacityChange = function (value) {
-  for (let i = FORM_CAPACITY.length - 1; i >= 0; i--) {
-    FORM_CAPACITY.removeChild(FORM_CAPACITY[i]);
+  for (let i = formCapacity.length - 1; i >= 0; i--) {
+    formCapacity.removeChild(formCapacity[i]);
   }
   switch (value) {
     case RoomSize.OneBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
     case RoomSize.TwoBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      formCapacity.appendChild(formCapacityOptions[1]);
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
     case RoomSize.ThreeBedroom:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[0]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[1]);
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[2]);
+      formCapacity.appendChild(formCapacityOptions[0]);
+      formCapacity.appendChild(formCapacityOptions[1]);
+      formCapacity.appendChild(formCapacityOptions[2]);
       break;
     default:
-      FORM_CAPACITY.appendChild(FORM_CAPACITY_OPTIONS[3]);
+      formCapacity.appendChild(formCapacityOptions[3]);
   }
 };
 
-const FORM_ROOM_NUMBERS = adForm.querySelector(`#room_number`);
+let formRoomNumbers = adForm.querySelector(`#room_number`);
 
-FORM_ROOM_NUMBERS.addEventListener(`change`, function (evt) {
+formRoomNumbers.addEventListener(`change`, function (evt) {
   onCapacityChange(evt.target.value);
 });
 
@@ -546,39 +550,39 @@ const onApartmentChange = function (value) {
   }
 };
 
-const FORM_APARTMENT_TYPE = adForm.querySelector(`#type`);
+let formApartmentType = adForm.querySelector(`#type`);
 
-FORM_APARTMENT_TYPE.addEventListener(`change`, function (evt) {
+formApartmentType.addEventListener(`change`, function (evt) {
   onApartmentChange(evt.target.value);
 });
 
-const FORM_APARTMENT_TIMEIN = adForm.querySelector(`#timein`);
+let formApartmentTimein = adForm.querySelector(`#timein`);
 
-FORM_APARTMENT_TIMEIN.addEventListener(`change`, function (evt) {
-  for (let element of FORM_APARTMENT_TIMEOUT.children) {
+formApartmentTimein.addEventListener(`change`, function (evt) {
+  for (let element of formApartmentTimeout.children) {
     if (evt.target.value === element.value) {
-      FORM_APARTMENT_TIMEOUT.value = element.value;
+      formApartmentTimeout.value = element.value;
     }
   }
 });
 
-const FORM_APARTMENT_TIMEOUT = adForm.querySelector(`#timeout`);
+let formApartmentTimeout = adForm.querySelector(`#timeout`);
 
-FORM_APARTMENT_TIMEOUT.addEventListener(`change`, function (evt) {
-  for (let element of FORM_APARTMENT_TIMEIN.children) {
+formApartmentTimeout.addEventListener(`change`, function (evt) {
+  for (let element of formApartmentTimein.children) {
     if (evt.target.value === element.value) {
-      FORM_APARTMENT_TIMEIN.value = element.value;
+      formApartmentTimein.value = element.value;
     }
   }
 });
 
 let adverts = [];
 
-const successHandler = function (data) {
+const onPageload = function (data) {
   map.classList.remove(`map--faded`);
   adForm.classList.remove(`ad-form--disabled`);
-  onCapacityChange(FORM_ROOM_NUMBERS.value);
-  onApartmentChange(FORM_APARTMENT_TYPE.value);
+  onCapacityChange(formRoomNumbers.value);
+  onApartmentChange(formApartmentType.value);
   window.utils.removeDisabled(adForm.children);
   window.utils.removeDisabled(mapFilters.children);
   formAdress.setAttribute(`disabled`, `disabled`);
@@ -621,7 +625,7 @@ features.forEach((item) =>{
   });
 });
 
-const errorHandler = function (errorMessage) {
+const onPageLoadError = function (errorMessage) {
   let node = document.createElement(`div`);
   node.style = `z-index: 100; margin: 0 auto; text-align: center; background-color: red;`;
   node.style.position = `absolute`;
@@ -632,18 +636,18 @@ const errorHandler = function (errorMessage) {
   map.insertAdjacentElement(`afterbegin`, node);
 };
 
-const successSendHandler = function () {
+const onFormSend = function () {
   clearForm();
   const SUCCESS_TEMPLATE = document.querySelector(`#success`).content;
   const SUCCESS = SUCCESS_TEMPLATE.cloneNode(true);
   document.addEventListener(`click`, hideSuccessMessage);
   const FRAGMENT = document.createDocumentFragment();
   FRAGMENT.appendChild(SUCCESS);
-  MAIN.appendChild(FRAGMENT);
+  main.appendChild(FRAGMENT);
   document.addEventListener(`keydown`, onSuccessEscPress);
 };
 
-const errorSendHandler = function () {
+const onFormSendError = function () {
   const ERROR_TEMPLATE = document.querySelector(`#error`).content;
   const ERROR = ERROR_TEMPLATE.cloneNode(true);
   const ERROR_BUTTON = ERROR.querySelector(`.error__button`);
@@ -655,13 +659,13 @@ const errorSendHandler = function () {
   });
   const FRAGMENT = document.createDocumentFragment();
   FRAGMENT.appendChild(ERROR);
-  MAIN.appendChild(FRAGMENT);
+  main.appendChild(FRAGMENT);
   document.addEventListener(`keydown`, onErrorEscPress);
 };
 
 adForm.addEventListener(`submit`, function (evt) {
   evt.preventDefault();
-  window.backend.send(new FormData(adForm), successSendHandler, errorSendHandler);
+  window.backend.send(new FormData(adForm), onFormSend, onFormSendError);
 });
 
 const onErrorEscPress = function (evt) {
@@ -677,21 +681,21 @@ const onSuccessEscPress = function (evt) {
 };
 
 const hideErrorMessage = function () {
-  const ERROR = document.querySelector(`.error`);
-  MAIN.removeChild(ERROR);
+  let error = document.querySelector(`.error`);
+  main.removeChild(error);
   document.removeEventListener(`keydown`, onErrorEscPress);
 };
 
 const hideSuccessMessage = function () {
-  const SUCCESS = document.querySelector(`.success`);
-  MAIN.removeChild(SUCCESS);
+  let success = document.querySelector(`.success`);
+  main.removeChild(success);
   document.removeEventListener(`keydown`, onSuccessEscPress);
   document.removeEventListener(`click`, hideSuccessMessage);
 };
 
 window.form = {
   pageActived() {
-    window.backend.load(successHandler, errorHandler);
+    window.backend.load(onPageload, onPageLoadError);
   }
 };
 
@@ -717,19 +721,19 @@ window.utils = {
     }
   },
   setDisabledPage() {
-    const MAP = document.querySelector(`.map`);
-    const AD_FORM = document.querySelector(`.ad-form`);
-    const MAP_FILTERS = MAP.querySelector(`.map__filters`);
-    const PINS = MAP.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-    const MAP_PINS = MAP.querySelector(`.map__pins`);
+    let map = document.querySelector(`.map`);
+    let adForm = document.querySelector(`.ad-form`);
+    let mapFilters = map.querySelector(`.map__filters`);
+    let pins = map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+    let mapPins = map.querySelector(`.map__pins`);
 
-    MAP.classList.add(`map--faded`);
-    AD_FORM.classList.add(`ad-form--disabled`);
-    window.utils.setDisabled(AD_FORM.children);
-    window.utils.setDisabled(MAP_FILTERS.children);
-    AD_FORM.reset();
+    map.classList.add(`map--faded`);
+    adForm.classList.add(`ad-form--disabled`);
+    window.utils.setDisabled(adForm.children);
+    window.utils.setDisabled(mapFilters.children);
+    adForm.reset();
     window.utils.isPageActiveted = false;
-    PINS.forEach((item)=>MAP_PINS.removeChild(item));
+    pins.forEach((item)=>mapPins.removeChild(item));
   },
   isPageActiveted: false
 };
@@ -744,9 +748,6 @@ window.utils = {
 /*! runtime requirements:  */
 
 
-const MAP = document.querySelector(`.map`);
-const MAIN_MAP_PIN = MAP.querySelector(`.map__pin--main`);
-const FORM_ADDRESS = document.querySelector(`#address`);
 const MIN_COORD_Y = 130;
 const MAX_COORD_Y = 630;
 const MIN_COORD_X = 0;
@@ -754,11 +755,16 @@ const MAX_COORD_X = 1200;
 const PIN_HEIGHT = 87;
 const PIN_WIDTH = 65;
 
+let map = document.querySelector(`.map`);
+let mainMapPin = map.querySelector(`.map__pin--main`);
+let formAddress = document.querySelector(`#address`);
+
+
 const getAdressCoords = function () {
-  FORM_ADDRESS.value = `${Math.floor(parseInt(MAIN_MAP_PIN.style.left, 10) + MAIN_MAP_PIN.clientWidth / 2)}, ${Math.floor(parseInt(MAIN_MAP_PIN.style.top, 10) + MAIN_MAP_PIN.clientHeight - PIN_HEIGHT)}`;
+  formAddress.value = `${Math.floor(parseInt(mainMapPin.style.left, 10) + mainMapPin.clientWidth / 2)}, ${Math.floor(parseInt(mainMapPin.style.top, 10) + mainMapPin.clientHeight - PIN_HEIGHT)}`;
 };
 
-MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
+mainMapPin.addEventListener(`mousedown`, function (evt) {
   if (evt.button === window.constants.LEFT_MOUSE_BTN) {
     if (!window.utils.isPageActiveted) {
       window.form.pageActived();
@@ -784,17 +790,17 @@ MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
         y: moveEvt.clientY
       };
 
-      let marginX = parseInt(MAIN_MAP_PIN.style.left, 10);
-      let marginY = parseInt(MAIN_MAP_PIN.style.top, 10);
-      let xMinCoord = MAP.getBoundingClientRect().x + PIN_WIDTH / 2;
+      let marginX = parseInt(mainMapPin.style.left, 10);
+      let marginY = parseInt(mainMapPin.style.top, 10);
+      let xMinCoord = map.getBoundingClientRect().x + PIN_WIDTH / 2;
       let xMaxCoord = MAX_COORD_X - PIN_WIDTH / 2;
 
       if ((moveEvt.clientX > xMinCoord || marginX > MIN_COORD_X) && (moveEvt.clientX < xMaxCoord || marginX < xMaxCoord)) {
-        MAIN_MAP_PIN.style.left = `${MAIN_MAP_PIN.offsetLeft - shift.x}px`;
+        mainMapPin.style.left = `${mainMapPin.offsetLeft - shift.x}px`;
       }
 
       if ((moveEvt.clientY > MIN_COORD_Y || marginY > MIN_COORD_Y) && (moveEvt.clientY < MAX_COORD_Y - window.scrollY || marginY < MAX_COORD_Y - window.scrollY)) {
-        MAIN_MAP_PIN.style.top = `${MAIN_MAP_PIN.offsetTop - shift.y}px`;
+        mainMapPin.style.top = `${mainMapPin.offsetTop - shift.y}px`;
       }
 
       getAdressCoords();
@@ -813,7 +819,7 @@ MAIN_MAP_PIN.addEventListener(`mousedown`, function (evt) {
   }
 });
 
-MAIN_MAP_PIN.addEventListener(`keydown`, function (evt) {
+mainMapPin.addEventListener(`keydown`, function (evt) {
   if (evt.key === window.constants.BUTTON_ENTER && !window.utils.isPageActiveted) {
     window.form.pageActived();
     window.utils.isPageActiveted = true;

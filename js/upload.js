@@ -8,7 +8,7 @@ let fotoChooser = document.querySelector(`.ad-form__upload input[type=file]`);
 let foto = document.querySelector(`.ad-form__photo`);
 let reader;
 
-avatarChooser.addEventListener(`change`, function () {
+avatarChooser.addEventListener(`change`, () => {
   let file = avatarChooser.files[0];
   let fileName = file.name.toLowerCase();
 
@@ -19,7 +19,7 @@ avatarChooser.addEventListener(`change`, function () {
   if (matches) {
     reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () => {
       avatar.src = reader.result;
     });
 
@@ -27,7 +27,7 @@ avatarChooser.addEventListener(`change`, function () {
   }
 });
 
-fotoChooser.addEventListener(`change`, function () {
+fotoChooser.addEventListener(`change`, () => {
   let file = fotoChooser.files[0];
   let fileName = file.name.toLowerCase();
 
@@ -38,7 +38,7 @@ fotoChooser.addEventListener(`change`, function () {
   if (matches) {
     reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () =>{
       foto.style.backgroundImage = `url(${reader.result})`;
     });
 
