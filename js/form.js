@@ -27,11 +27,11 @@ let housingType = mapFilters.querySelector(`#housing-type`);
 let housingPrice = mapFilters.querySelector(`#housing-price`);
 let housingRooms = mapFilters.querySelector(`#housing-rooms`);
 let housingGuests = mapFilters.querySelector(`#housing-guests`);
-let features = document.querySelectorAll(`.map__feature`);
 let featureCheckbox = document.querySelectorAll(`.map__checkbox`);
 let avatar = document.querySelector(`.ad-form-header__preview img`);
 let foto = document.querySelector(`.ad-form__photo`);
 
+formAdress.value = `${Math.floor(parseInt(mainMapPin.style.left, 10) + mainMapPin.clientWidth / 2)}, ${Math.floor(parseInt(mainMapPin.style.top, 10) + mainMapPin.clientHeight - PIN_HEIGHT)}`;
 
 const clearForm = function () {
   window.utils.setDisabledPage();
@@ -44,14 +44,9 @@ const clearForm = function () {
   featureCheckbox.forEach((feature)=>{
     feature.checked = false;
   });
-  filteredState = {
-    type: `any`,
-    price: `any`,
-    rooms: `any`,
-    guests: `any`
-  };
   avatar.src = `img/muffin-grey.svg`;
   foto.style.backgroundImage = ``;
+  window.utils.checkPopup();
   formAdress.value = `${Math.floor(parseInt(mainMapPin.style.left, 10) + mainMapPin.clientWidth / 2)}, ${Math.floor(parseInt(mainMapPin.style.top, 10) + mainMapPin.clientHeight - PIN_HEIGHT)}`;
 };
 
@@ -132,7 +127,6 @@ formApartmentTimeout.addEventListener(`change`, function (evt) {
   }
 });
 
-let adverts = [];
 
 const onPageload = function (data) {
   map.classList.remove(`map--faded`);
@@ -142,44 +136,10 @@ const onPageload = function (data) {
   window.utils.removeDisabled(adForm.children);
   window.utils.removeDisabled(mapFilters.children);
   formAdress.setAttribute(`disabled`, `disabled`);
-  adverts = data;
+  window.utils.isPageActiveted = true;
+  window.utils.adverts = data;
   window.pin.generateTemplate(data);
 };
-
-let filteredState = {
-  type: `any`,
-  price: `any`,
-  rooms: `any`,
-  guests: `any`
-};
-
-
-housingType.addEventListener(`change`, function (evt) {
-  filteredState.type = evt.target.value;
-  window.debounce(window.filter.byType(adverts, filteredState));
-});
-
-housingPrice.addEventListener(`change`, function (evt) {
-  filteredState.price = evt.target.value;
-  window.debounce(window.filter.byType(adverts, filteredState));
-});
-
-housingRooms.addEventListener(`change`, function (evt) {
-  filteredState.rooms = evt.target.value;
-  window.debounce(window.filter.byType(adverts, filteredState));
-});
-
-housingGuests.addEventListener(`change`, function (evt) {
-  filteredState.guests = evt.target.value;
-  window.debounce(window.filter.byType(adverts, filteredState));
-});
-
-features.forEach((item) =>{
-  item.addEventListener(`click`, function (evt) {
-    window.filter.byFeature(evt.target.textContent);
-    window.debounce(window.filter.byType(adverts, filteredState));
-  });
-});
 
 const onPageLoadError = function (errorMessage) {
   let node = document.createElement(`div`);
@@ -194,33 +154,31 @@ const onPageLoadError = function (errorMessage) {
 
 const onFormSend = function () {
   clearForm();
-  const SUCCESS_TEMPLATE = document.querySelector(`#success`).content;
-  const SUCCESS = SUCCESS_TEMPLATE.cloneNode(true);
+  let succesTemplate = document.querySelector(`#success`).content;
+  let success = succesTemplate.cloneNode(true);
   document.addEventListener(`click`, hideSuccessMessage);
-  const FRAGMENT = document.createDocumentFragment();
-  FRAGMENT.appendChild(SUCCESS);
-  main.appendChild(FRAGMENT);
+  let fragment = document.createDocumentFragment();
+  fragment.appendChild(success);
+  main.appendChild(fragment);
   document.addEventListener(`keydown`, onSuccessEscPress);
 };
 
+
 const onFormSendError = function () {
-  const ERROR_TEMPLATE = document.querySelector(`#error`).content;
-  const ERROR = ERROR_TEMPLATE.cloneNode(true);
-  const ERROR_BUTTON = ERROR.querySelector(`.error__button`);
-  ERROR_BUTTON.addEventListener(`click`, function () {
-    hideErrorMessage();
-  });
-  document.addEventListener(`click`, function () {
-    hideErrorMessage();
-  });
-  const FRAGMENT = document.createDocumentFragment();
-  FRAGMENT.appendChild(ERROR);
-  main.appendChild(FRAGMENT);
+  let errorTemplate = document.querySelector(`#error`).content;
+  let error = errorTemplate.cloneNode(true);
+  let errorButton = error.querySelector(`.error__button`);
+  errorButton.addEventListener(`click`, hideErrorMessage);
+  document.addEventListener(`click`, hideErrorMessage);
+  let fragment = document.createDocumentFragment();
+  fragment.appendChild(error);
+  main.appendChild(fragment);
   document.addEventListener(`keydown`, onErrorEscPress);
 };
 
 adForm.addEventListener(`submit`, function (evt) {
   evt.preventDefault();
+  formAdress.removeAttribute(`disabled`);
   window.backend.send(new FormData(adForm), onFormSend, onFormSendError);
 });
 
@@ -237,9 +195,12 @@ const onSuccessEscPress = function (evt) {
 };
 
 const hideErrorMessage = function () {
-  let error = document.querySelector(`.error`);
-  main.removeChild(error);
+  let errorElem = document.querySelector(`.error`);
+  let errorButton = document.querySelector(`.error__button`);
+  main.removeChild(errorElem);
   document.removeEventListener(`keydown`, onErrorEscPress);
+  errorButton.removeEventListener(`click`, hideErrorMessage);
+  document.removeEventListener(`click`, hideErrorMessage);
 };
 
 const hideSuccessMessage = function () {

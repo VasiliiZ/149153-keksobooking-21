@@ -1,100 +1,69 @@
 'use strict';
 
 const DEFAULT_TYPE = `any`;
-const FEATURES_MAP = {
-  "Wi-Fi": `wifi`,
-  "Посудомоечная машина": `dishwasher`,
-  "Парковка": `parking`,
-  "Стиральная машина": `washer`,
-  "Лифт": `elevator`,
-  "Кондиционер": `conditioner`
-};
-const priceRange = {
-  low: {
+const PriceRange = {
+  LOW: {
     min: 0,
     max: 10000
   },
-  middle: {
+  MIDDLE: {
     min: 10000,
     max: 50000
   },
-  high: {
+  HIGH: {
     min: 50000,
     max: 10000000
   }
 };
 
-let map = document.querySelector(`.map`);
+let mapFilters = document.querySelector(`.map__filters`);
+let housingType = mapFilters.querySelector(`#housing-type`);
+let housingPrice = mapFilters.querySelector(`#housing-price`);
+let housingRooms = mapFilters.querySelector(`#housing-rooms`);
+let housingGuests = mapFilters.querySelector(`#housing-guests`);
 
-const checkPopup = () => {
-  const popup = map.querySelector(`.popup`);
-  if (popup) {
-    map.removeChild(popup);
-  }
-};
 
-const filteredByType = function (arr, type) {
-  return type !== DEFAULT_TYPE ? arr.filter((item) => item.offer.type === type) : arr;
-};
+mapFilters.addEventListener(`change`, window.debounce(function () {
+  window.utils.checkPopup();
+  let housingFeatures = mapFilters.querySelectorAll(`.map__checkbox:checked`);
 
-const filteredByRooms = function (arr, type) {
-  return type !== DEFAULT_TYPE ? arr.filter((item) => parseInt(item.offer.rooms, 10) === parseInt(type, 10)) : arr;
-};
+  let filtered = window.utils.adverts.filter(function (item) {
 
-const filteredByGuests = function (arr, type) {
-  return type !== DEFAULT_TYPE ? arr.filter((item) => parseInt(item.offer.guests, 10) === parseInt(type, 10)) : arr;
-};
+    let type = true;
+    let price = true;
+    let rooms = true;
+    let guests = true;
+    let features = true;
 
-const filteredByPrice = function (arr, type) {
-  return type !== DEFAULT_TYPE ? arr.filter((item) => item.offer.price >= priceRange[type].min && item.offer.price <= priceRange[type].max) : arr;
-};
-
-const findFeature = function (features) {
-  let match = 0;
-  let flag = false;
-  features.forEach((feature)=>{
-    if (comparedFeatures.indexOf(feature) !== -1) {
-      match += 1;
+    if (housingType.value !== DEFAULT_TYPE) {
+      type = housingType.value === item.offer.type;
     }
+
+    if (housingRooms.value !== DEFAULT_TYPE) {
+      rooms = parseInt(housingRooms.value, 10) === parseInt(item.offer.rooms, 10);
+    }
+
+    if (housingGuests.value !== DEFAULT_TYPE) {
+      guests = parseInt(housingGuests.value, 10) === parseInt(item.offer.guests, 10);
+    }
+
+    if (housingPrice.value !== DEFAULT_TYPE) {
+      price = item.offer.price >= PriceRange[housingPrice.value.toUpperCase()].min && item.offer.price <= PriceRange[housingPrice.value.toUpperCase()].max;
+    }
+
+    const filteredByFeatures = function (elem) {
+      for (let i = 0; i < elem.length; i++) {
+        if (item.offer.features.indexOf(elem[i].value) === -1) {
+          features = false;
+          break;
+        }
+      }
+    };
+
+    filteredByFeatures(housingFeatures);
+
+    return type && price && rooms && guests && features;
   });
-  if (match === comparedFeatures.length) {
-    flag = true;
-  }
-  return flag;
-};
 
-const filteredByFeatures = function (arr) {
-  return arr.filter((item)=>findFeature(item.offer.features));
-};
-
-
-let comparedFeatures = [];
-
-const getMatch = function (arr, type) {
-  let match = ``;
-  match = arr.includes(type);
-  if (!match) {
-    arr.push(type);
-  } else {
-    let index = comparedFeatures.indexOf(type);
-    arr.splice(index, 1);
-  }
-};
-
-window.filter = {
-  byType(adverts, filteredState) {
-    checkPopup();
-    let filtered = [];
-    filtered = filteredByType(adverts, filteredState.type);
-    filtered = filteredByPrice(filtered, filteredState.price);
-    filtered = filteredByRooms(filtered, filteredState.rooms);
-    filtered = filteredByGuests(filtered, filteredState.guests);
-    filtered = filteredByFeatures(filtered);
-    window.pin.generateTemplate(filtered);
-  },
-  byFeature(feature) {
-    getMatch(comparedFeatures, FEATURES_MAP[feature]);
-  }
-};
-
-
+  window.pin.generateTemplate(filtered);
+}));

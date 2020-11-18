@@ -22,7 +22,13 @@ window.popup = {
   },
   close() {
     let popup = map.querySelector(`.popup`);
+    let pins = map.querySelectorAll(`.map__pin:not(.map__pin--main)`);
     map.removeChild(popup);
+    pins.forEach((pin)=>{
+      if (pin.classList.contains(`map__pin--active`)) {
+        pin.classList.remove(`map__pin--active`);
+      }
+    });
     document.removeEventListener(`keydown`, onPopupEscPress);
   }
 };

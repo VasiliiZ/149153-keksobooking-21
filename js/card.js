@@ -1,28 +1,28 @@
 'use strict';
 
 let cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
-const MAP_FILTER_CONTAINER = document.querySelector(`.map__filters-container`);
+let mapFilterContainer = document.querySelector(`.map__filters-container`);
 const APARTMENT_TYPE_MAP = {
-  Palace: `Дворец`,
-  Flat: `Квартира`,
-  House: `Дом`,
-  Bungalow: `Бунгало `
+  palace: `Дворец`,
+  flat: `Квартира`,
+  house: `Дом`,
+  bungalow: `Бунгало `
 };
 
 const renderCard = function (card) {
-  const CARD = cardTemplate.cloneNode(true);
-  let title = CARD.querySelector(`.popup__title`);
-  let address = CARD.querySelector(`.popup__text--address`);
-  let price = CARD.querySelector(`.popup__text--price`);
-  let apartment = CARD.querySelector(`.popup__type`);
-  let capacity = CARD.querySelector(`.popup__text--capacity`);
-  let time = CARD.querySelector(`.popup__text--time`);
-  let features = CARD.querySelector(`.popup__features`);
+  let cardClone = cardTemplate.cloneNode(true);
+  let title = cardClone.querySelector(`.popup__title`);
+  let address = cardClone.querySelector(`.popup__text--address`);
+  let price = cardClone.querySelector(`.popup__text--price`);
+  let apartment = cardClone.querySelector(`.popup__type`);
+  let capacity = cardClone.querySelector(`.popup__text--capacity`);
+  let time = cardClone.querySelector(`.popup__text--time`);
+  let features = cardClone.querySelector(`.popup__features`);
   let feature = features.querySelectorAll(`.popup__feature`);
-  let description = CARD.querySelector(`.popup__description`);
-  let photos = CARD.querySelector(`.popup__photos`);
+  let description = cardClone.querySelector(`.popup__description`);
+  let photos = cardClone.querySelector(`.popup__photos`);
   let photo = photos.querySelector(`.popup__photo`);
-  let avatar = CARD.querySelector(`.popup__avatar`);
+  let avatar = cardClone.querySelector(`.popup__avatar`);
   title.textContent = card.offer.title;
   address.textContent = card.offer.address;
   price.textContent = `${card.offer.price}₽/ночь`;
@@ -50,13 +50,13 @@ const renderCard = function (card) {
     photoElem.src = element;
     photos.appendChild(photoElem);
   });
-  return CARD;
+  return cardClone;
 };
 
 window.card = {
   generateTemplate(advert) {
-    const FRAGMENT = document.createDocumentFragment();
-    FRAGMENT.appendChild(renderCard(advert));
-    MAP_FILTER_CONTAINER.before(FRAGMENT);
+    let fragment = document.createDocumentFragment();
+    fragment.appendChild(renderCard(advert));
+    mapFilterContainer.before(fragment);
   }
 };

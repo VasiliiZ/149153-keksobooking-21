@@ -1,7 +1,7 @@
 'use strict';
 
 const TIMEOUT_INTERVAL = 1000;
-const METHODS = {
+const Methods = {
   GET: `GET`,
   POST: `POST`
 };
@@ -9,11 +9,10 @@ const ServerStatus = {
   OK: 200
 };
 
-let xhr;
 
 window.backend = {
   load(onLoad, onError) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking/data`;
     xhr.responseType = `json`;
     xhr.addEventListener(`load`, function () {
@@ -30,11 +29,11 @@ window.backend = {
       onError(`Запрос не успел выполниться за ${xhr.timeout} мс`);
     });
     xhr.timeout = TIMEOUT_INTERVAL;
-    xhr.open(METHODS.GET, URL);
+    xhr.open(Methods.GET, URL);
     xhr.send();
   },
   send(data, onLoad, onError) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     const URL = `https://21.javascript.pages.academy/keksobooking`;
     xhr.addEventListener(`load`, function () {
       if (xhr.status === ServerStatus.OK) {
@@ -50,7 +49,7 @@ window.backend = {
       onError(`Запрос не успел выполниться за ${xhr.timeout} мс`);
     });
     xhr.timeout = TIMEOUT_INTERVAL;
-    xhr.open(METHODS.POST, URL);
+    xhr.open(Methods.POST, URL);
     xhr.send(data);
   }
 };
